@@ -1,15 +1,15 @@
 
 = This tool is cool, but it looks bad! =
 
- Want to help us improve the UI, the banner, the screenshots or the logo? 
+ Want to improve the UI, the banner, the screenshots or the logoes ? 
  
- That would be a great help! Just send your works to us.  
+ That would be a great help! Contact us to get what you need.  
 
 = Localization =
 
- If your language is missing and you want help us to do translating, send a email or leave a message, we will send you a copy of text in English for translating.
+ If your language is missing and you want to help us do the translating, send us a email or leave a message. 
  
- Once your work is accepted, your name can be chose to be leaved in this wiki for appreciation.
+ We will send you a copy of the text for translating.
 
 = Others =
 
