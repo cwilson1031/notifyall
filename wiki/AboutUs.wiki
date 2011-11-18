@@ -1,5 +1,5 @@
 
-= This tool is cool, but it looks bad! =
+= This tool is cool, but looks bad! =
 
  Want to improve the UI, the banner, the screenshots or the logoes ? 
  
