@@ -1,7 +1,7 @@
 #labels Featured
 *English:*
 
-Login the chose sites with the "Remember me" or "Keep me signed in" opition in Google Chrome broswer to connect NotifyAll with your accounts!
+Login the chose sites with the "Remember me" or "Keep me signed in" option checked in Google Chrome browser to connect !NotifyAll with your accounts!
 
 If you want to disconnect, just open the site and logout. 
 
