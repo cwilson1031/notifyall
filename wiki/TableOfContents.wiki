@@ -1,11 +1,11 @@
   * [HomePage Getting Start] 
   * [Feedback Suggestions]
-  * SuperSites Global Sites
+  * Global Sites
     * [SSGmail Gmail]
     * [SSFacebook Facebook]
     * [SSHotmail Hotmail]
     * [SSYahooMail Yahoo Mail]
-  * ChineseSites 中文网站
+  * 中文网站
     * [CSSinaWeibo 新浪微博]
     * [CSBaidu 百度(空间)]
     * [CS163Mail 网易邮箱]
