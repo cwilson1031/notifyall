@@ -1,1 +1,2 @@
-= Yahoo Mail =
+
+= HotMail =
