@@ -10,5 +10,6 @@
     * [CSBaidu 百度(空间)]
     * [CS163Mail 网易邮箱]
   * [ConnectAny Connect your sites to NotifyAll]
+  * [AboutLocalization Localization]
   * [AboutUs About us]
   
