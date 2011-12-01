@@ -1039,7 +1039,7 @@ AOLMailChecker.prototype.start = function(){
 } ;
 
 AOLMailChecker.prototype.tabsUpdated = function(tabId, changeInfo){
-	if (changeInfo.url && changeInfo.url.indexOf("") != -1) {
+	if (changeInfo.url && changeInfo.url.indexOf("mail.aol.com") != -1) {
 		this.manualCheckNow() ;
 	}
 } ;
@@ -1133,7 +1133,7 @@ SohuMailChecker.prototype.start = function(){
 } ;
 
 SohuMailChecker.prototype.tabsUpdated = function(tabId, changeInfo){
-	if (changeInfo.url && changeInfo.url.indexOf("") != -1) {
+	if (changeInfo.url && changeInfo.url.indexOf("mail.sohu.com/bapp/") != -1) {
 		this.manualCheckNow() ;
 	}
 } ;
@@ -1203,3 +1203,95 @@ SohuMailChecker.prototype.getSiteInfo = function() {
 	return {"text" : "搜狐邮箱", "icon" : "/images/sohum.ico", "loginUrl" : "http://mail.sohu.com/"} ;
 } ;
 
+/****************************************people.com.cn**************************************************/
+function RMWChecker(){
+	this.appName = "rmw" ;
+}
+RMWChecker.prototype = new TaskRunner() ;
+RMWChecker.prototype.constructor = RMWChecker ;
+
+RMWChecker.prototype.start = function(){
+	this.init() ;
+	this.pollIntervalMin = 1000 * 20;  // 20 seconds
+	this.pollIntervalMax = 1000 * 60 * 2;  // 2 minutes
+} ;
+
+RMWChecker.prototype.tabsUpdated = function(tabId, changeInfo){
+	if (changeInfo.url && changeInfo.url.indexOf("sns.people.com.cn") != -1) {
+		this.manualCheckNow() ;
+	}
+} ;
+
+RMWChecker.prototype.goToInbox = function() {
+	var owner = this ;
+	
+	chrome.tabs.getAllInWindow(undefined, function(tabs) {
+	    for (var i = 0, tab; tab = tabs[i]; i++) {
+	      if (tab.url && tab.ur.indexOf("http://sns.people.com.cn/") != -1) {
+	        chrome.tabs.update(tab.id, {selected: true});
+	        return;
+	      }
+	    }
+	    
+	    chrome.tabs.create({url: "http://sns.people.com.cn/"});
+	});
+} ;
+
+RMWChecker.prototype.updateUnreadCount = function(json) {
+	var data = [] ;
+	var count = 0 ;
+	
+	for(var index in json){
+		var m_data = json[index] ;
+		count += m_data.count ;
+		
+		data.push({"unReadCount" : m_data.count,
+					"icon" : "",
+					"text" : m_data.count + "个" + m_data.name,
+					"link" : m_data.url
+				}) ;
+	}
+	
+	if (this.unreadCount != count) {
+		this.unreadCount = count;
+		globalNotifyUnreadMessage(this.appName, data);
+	}
+} ;
+
+RMWChecker.prototype.checkUnreadNotifications = function(runner, xhr, handleSuccess, handleError){
+		console.debug(this.appName + " checkUnreadNotifications called") ;
+		xhr.onreadystatechange = function() {
+			if (xhr.readyState != 4)
+				return;
+			if (xhr.responseText) {
+				var textDoc = xhr.responseText;
+				
+				if(textDoc){
+					try{
+						var json = JSON.parse(textDoc);
+						if(json){
+							handleSuccess(runner, json);
+							return ;
+						}
+					}catch(e){
+						//format changed
+						handleError(runner, chrome.i18n.getMessage("needUpgrade"));
+						return ;
+					}
+				}
+			}
+	
+			handleError(runner);
+		};
+
+		xhr.onerror = function(error) {
+			handleError(runner);
+		};
+	
+		xhr.open("GET", "http://sns.people.com.cn/api/myJsonNews.do?t_=" + (new Date()).getTime(), true);
+		xhr.send(null);
+} ;
+
+RMWChecker.prototype.getSiteInfo = function() {
+	return {"text" : "人民社区", "icon" : "/images/rmw_sns.ico", "loginUrl" : "http://sns.people.com.cn/"} ;
+} ;

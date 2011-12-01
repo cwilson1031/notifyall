@@ -58,6 +58,8 @@ function startChoseCheckers(sites){
 				checker = new AOLMailChecker() ;
 			}else if(site == "sohum"){
 				checker = new SohuMailChecker() ;
+			}else if(site == "rmw"){
+				checker = new RMWChecker() ;
 			}else{
 				//unknown site
 				console.error("register error. unknown new site:" + site) ;
@@ -174,7 +176,7 @@ function globalNotifyError(appName, errorMsg){
 	}
 }
 
-function repaintTips(){    
+function repaintTips(){
 	var newUnReadCount = 0 ;
 	var connectedSites = [] ;
 	var m_hasFailedSite = false ;
@@ -196,7 +198,6 @@ function repaintTips(){
 	var m_failStatusChanged = has_error != m_hasFailedSite ;
 	has_error = m_hasFailedSite ;
 	
-	
 	if(connectedSites.length == 0 && !no_conn_icon_on){
 		//all error!
 		no_conn_icon_on = true ;
@@ -205,7 +206,6 @@ function repaintTips(){
 		chrome.browserAction.setIcon({path:"/images/no_conn.png"});
 	  	chrome.browserAction.setBadgeBackgroundColor({color:[190, 190, 190, 230]});
 	  	chrome.browserAction.setBadgeText({text:"?"});
-	  	chrome.browserAction.setTitle({title :(errorMsg ? errorMsg : "")}) ;
 	}else if(connectedSites.length > 0){
 		//some sites are connected.
 		if(newUnReadCount != unreadCount || m_failStatusChanged || no_conn_icon_on){
