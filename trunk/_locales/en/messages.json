@@ -1,0 +1,88 @@
+{
+  "appName": {
+    "message": "Notify All",
+    "description": "APP Name"
+  },
+
+  "appDescription": {
+    "message": "Notifier for Facebook, Gmail, Hotmail, Yahoo, AOL... No passwords are required to this extension, for safety.",
+    "description": "APP Introduction"
+  },
+
+  "defaultFSites": {
+    "message": "[\"gmail\", \"facebook\"]",
+    "description": "Default chose sites to be notified of."
+  },
+
+  "options": {
+    "message": "Options",
+    "description": "Options"
+  },
+
+  "helpAndFeedback": {
+    "message": "(Help & Suggestions)",
+    "description": "(Help&Suggestions)"
+  },
+
+  "saveOptions": {
+    "message": "Save",
+    "description": "Save your settings"
+  },
+
+  "saveOptionsDoneTip": {
+    "message": "Saved",
+    "description": "save Success"
+  },
+
+  "newMails": {
+    "message": " new mails.",
+    "description": "new mails"
+  },
+
+  "newNotifications": {
+    "message": " new notifications.",
+    "description": "new notifications"
+  },
+
+  "needUpgrade": {
+    "message": "need upgrade.",
+    "description": "tip for upgrading"
+  },
+
+  "notConnected": {
+    "message": "Not connected!",
+    "description": "Unconnected tip"
+  },
+
+  "loading": {
+    "message": "Loading...",
+    "description": "Loading"
+  },
+
+  "noNewMessageTip": {
+    "message": "No new messages.",
+    "description": "No New Messages in Popup"
+  },
+
+  "helpLink": {
+    "message": "Help",
+    "description": "Help Name in Popup"
+  },
+
+  "optionsLink": {
+    "message": "Options",
+    "description": "Options Name in Popup"
+  },
+
+  "diagnose": {
+    "message": "Diagnose",
+    "description": "When connection fails，the alternative link address will be shown here."
+  },
+
+  "connectedSites": {
+    "message": "Connected sites: ",
+    "description": "Sites that have been connected to."
+  }
+
+}
+

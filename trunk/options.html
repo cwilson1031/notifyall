@@ -1,0 +1,156 @@
+<html><head>
+<meta charset="utf-8" />
+<style>
+	body a {
+		color: #444;font:14px/1.125 Arial,Helvetica,sans-serif;
+		white-space: nowrap;
+	}
+	.top{
+		-webkit-padding-end: 24px;
+		-webkit-user-select: none;
+		border-bottom: 1px solid #EEE;
+		color: #53637D;
+		font-size: 200%;
+		font-weight: normal;
+		margin: 0;
+		padding-bottom: 4px;
+		padding-top: 13px;
+		text-shadow: white 0 1px 2px;
+	}
+	.top span{
+		padding: 5px 10px;
+	}
+
+	.lang{
+		-webkit-padding-end: 10px;
+		-webkit-box-flex: 1;
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		font-size: 16px;
+		font-weight: 500;
+		-webkit-padding-end: 20px;
+		cursor: default;
+		line-height: 20px;
+		white-space: pre;
+		font-family:Arial, 'Microsoft Yahei', Simsun, sans-serif;
+		font-weight: bold;
+		padding: 5px 10px;
+	}
+	
+	a {
+		text-decoration: none;
+	}
+	
+	a:hover{
+		text-decoration: underline;
+	}
+		
+	.providers ul{
+		font-family:Arial, 'Microsoft Yahei', Simsun, sans-serif;
+		margin: 0 0px;padding: 0;display: block;
+		list-style-type: disc;
+		-webkit-margin-start: 0px;
+		-webkit-margin-end: 0px;
+		-webkit-padding-start: 2px;
+		line-height: 2px;
+	}
+	
+	.providers li{
+		display: list-item;
+		text-align: -webkit-match-parent;
+		padding: 5px 60px;
+		color: #595959;
+		line-height: 12px;
+		list-style: none;
+		white-space: nowrap;
+	}
+
+	.button{
+		padding: 2px 30px;
+	}
+
+	input{
+		font-size: 15px;
+		font-weight: 500;
+		padding: 5px 10px;
+	
+	}
+    
+</style>
+<script src="js/jquery-1.4.2.min.js"></script>
+<script>
+
+	function init(){
+		var background = chrome.extension.getBackgroundPage();
+		var sites = background.getSavedSites() ;
+
+		if(sites){
+			sites.forEach(
+				function(site){
+					$("#" + site).attr("checked", true) ;
+				}
+			) ;
+		}
+
+		$("[i18ntext]").each(
+			function (index, item){
+				var jItem = $(item) ;
+				var m_value = chrome.i18n.getMessage(jItem.attr("i18ntext")) ;
+				
+				jItem.val(m_value) ;
+				jItem.text(m_value) ;
+			}
+		) ;
+	}
+
+	function saveOptions(){
+		var selectedOptions = [] ;
+		$("input[name=providers]").each(
+			function (index, item){
+				if(item.checked){
+					selectedOptions.push(item.id) ;
+				}
+			}
+		) ;
+
+		var background = chrome.extension.getBackgroundPage();
+		background.storeSavedSites(selectedOptions) ;
+
+		$("#tipForSaveOK").fadeIn("slow").fadeOut(10000) ;
+	}
+
+</script>
+</head>
+<body onload="init()">
+
+<div class="top"><span i18ntext="options">选项</span><span><a href="http://code.google.com/p/notifyall/wiki/HomePage?tm=6" target="_blank" i18ntext="helpAndFeedback">（使用帮助与意见反馈）</a></span></div>
+
+
+<div class="lang">English:</div>
+<div class="providers">
+	<ul>
+		<li><input type="checkbox" name="providers" id="gmail" /><label for="gmail">&nbsp;<img src="images/mail.ico"/>&nbsp;Gmail</label></li>
+		<li><input type="checkbox" name="providers" id="facebook" /><label for="facebook">&nbsp;<img src="images/facebook.ico"/>&nbsp;Facebook</label></li>
+		<li><input type="checkbox" name="providers" id="hotmail" /><label for="hotmail">&nbsp;<img src="images/hotmail.ico"/>&nbsp;Hotmail</label></li>
+		<li><input type="checkbox" name="providers" id="yahoom" /><label for="yahoom">&nbsp;<img src="images/yahoo.ico"/>&nbsp;Yahoo Mail</label></li>
+		<li><input type="checkbox" name="providers" id="aolm" /><label for="aolm">&nbsp;<img src="images/aol.ico"/>&nbsp;AOL Mail</label></li>
+	</ul>
+</div>
+
+<div class="lang">中文站:</div>
+<div class="providers">
+	<ul>
+		<li><input type="checkbox" name="providers" id="weibo" /><label for="weibo">&nbsp;<img src="images/weibo.ico"/>新浪微博</label></li>
+		<li><input type="checkbox" name="providers" id="baidu" /><label for="baidu">&nbsp;<img src="images/baidu.ico"/>百度空间</label></li>
+		<li><input type="checkbox" name="providers" id="163m" /><label for="163m">&nbsp;<img src="images/163.ico"/>网易邮箱</label></li>
+		<li><input type="checkbox" name="providers" id="sohum" /><label for="sohum">&nbsp;<img width="16px;" src="images/sohum.ico"/>搜狐邮箱</label></li>
+		<li></li>
+	</ul>
+</div>
+
+<div class="button">
+	<input type="button" i18ntext="saveOptions" value="保存设置" onClick="saveOptions();" id="saveConfig" />
+	&nbsp;<span id="tipForSaveOK" style="display:none;" i18ntext="saveOptionsDoneTip">保存成功</span>
+</div>
+
+</body></html>

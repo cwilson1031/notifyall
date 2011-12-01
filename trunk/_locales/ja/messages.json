@@ -1,0 +1,88 @@
+{
+  "appName": {
+    "message": "スーパーリマインダー",
+    "description": "APP Name"
+  },
+
+  "appDescription": {
+    "message": "新しいメールの到着を思い出させる: Gmailの,FacebookやHotmailの,ヤフー,AOLニュース. このソフトウェアは、安全で信頼性の高い、任意のサイトのパスワードを入力する必要はありません.",
+    "description": "APP Introduction"
+  },
+
+  "defaultFSites": {
+    "message": "[\"gmail\", \"facebook\"]",
+    "description": "Default chose sites to be notified of."
+  },
+
+  "options": {
+    "message": "オプション",
+    "description": "Options"
+  },
+
+  "helpAndFeedback": {
+    "message": "(ヘルプ &建策)",
+    "description": "(Help&Suggestions)"
+  },
+
+  "saveOptions": {
+    "message": "保存",
+    "description": "Save your settings"
+  },
+
+  "saveOptionsDoneTip": {
+    "message": "最後の保存",
+    "description": "save Success"
+  },
+
+  "newMails": {
+    "message": "新しいメール",
+    "description": "new mails"
+  },
+
+  "newNotifications": {
+    "message": "新しい通知",
+    "description": "new notifications"
+  },
+
+  "needUpgrade": {
+    "message": "アップグレードする必要があります",
+    "description": "tip for upgrading"
+  },
+
+  "notConnected": {
+    "message": "接続されていません！",
+    "description": "Unconnected tip"
+  },
+
+  "loading": {
+    "message": "読み込み中...",
+    "description": "Loading"
+  },
+
+  "noNewMessageTip": {
+    "message": "新しいメッセージはありません",
+    "description": "No New Messages in Popup"
+  },
+
+  "helpLink": {
+    "message": "ヘルプ",
+    "description": "Help Name in Popup"
+  },
+
+  "optionsLink": {
+    "message": "オプション",
+    "description": "Options Name in Popup"
+  },
+
+  "diagnose": {
+    "message": "診断する",
+    "description": "When connection fails，the alternative link address will be shown here."
+  },
+
+  "connectedSites": {
+    "message": "接続されているサイト: ",
+    "description": "Sites that have been connected to."
+  }
+
+}
+

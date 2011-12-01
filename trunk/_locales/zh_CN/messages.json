@@ -1,0 +1,88 @@
+{
+  "appName": {
+    "message": "超级提醒",
+    "description": "应用名称"
+  },
+
+  "appDescription": {
+    "message": "新邮件提醒：Gmail,Facebook,Hotmail,Yahoo,AOL,网易邮箱,Sohu邮箱,新浪微博,百度。此工具不需要您输入任何网站的密码，安全可靠。",
+    "description": "应用介绍"
+  },
+
+  "defaultFSites": {
+    "message": "[\"gmail\", \"weibo\"]",
+    "description": "Default chose sites to be notified of."
+  },
+
+  "options": {
+    "message": "设置",
+    "description": "选项"
+  },
+
+  "helpAndFeedback": {
+    "message": "（使用帮助与意见反馈）",
+    "description": "（使用帮助与意见反馈）"
+  },
+
+  "saveOptions": {
+    "message": "保存设置",
+    "description": "保存设置"
+  },
+
+  "saveOptionsDoneTip": {
+    "message": "设置已成功保存并已生效",
+    "description": "保存设置成功"
+  },
+
+  "newMails": {
+    "message": "封新邮件",
+    "description": "保存设置"
+  },
+
+  "newNotifications": {
+    "message": "个新提醒",
+    "description": "保存设置"
+  },
+
+  "needUpgrade": {
+    "message": "请升级此插件。",
+    "description": "提示升级"
+  },
+
+  "notConnected": {
+    "message": "无法连接！",
+    "description": "检查提醒出错"
+  },
+
+  "loading": {
+    "message": "加载中...",
+    "description": "加载中"
+  },
+
+  "noNewMessageTip": {
+    "message": "无新消息.",
+    "description": "popup无新消息显示"
+  },
+
+  "helpLink": {
+    "message": "帮助",
+    "description": "popup中的Help名称"
+  },
+
+  "optionsLink": {
+    "message": "设置",
+    "description": "popup中的Options名称"
+  },
+
+  "diagnose": {
+    "message": "诊断",
+    "description": "无法连接时，给出的修复链接地址"
+  },
+
+  "connectedSites": {
+    "message": "已连接网站：",
+    "description": "Sites that have been connected to."
+  }
+
+}
+
