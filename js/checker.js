@@ -369,17 +369,16 @@ HotmailChecker.prototype.checkUnreadNotifications = function(runner, xhr, handle
 				var textDoc = xhr.responseText;
 				
 				try{
-					var pos = textDoc.indexOf("class=\"lnav_topItemLnk\"") ;
+					var pos = textDoc.indexOf("<span class=\"count\">") ;
 					
 					if(pos == -1){
 						handleError(runner);
 						return ;
 					}
 					
-					pos = textDoc.indexOf("(<span>", pos) ;
 					if(pos > 0){
-						pos += "(<span>".length ;
-						endPos = textDoc.indexOf("</span>)", pos) ;
+						pos += "<span class=\"count\">".length ;
+						endPos = textDoc.indexOf("</span>", pos) ;
 						var len = endPos - pos ;
 						
 						var count = textDoc.substr(pos, len) ;
