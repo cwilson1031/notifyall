@@ -318,7 +318,7 @@ HotmailChecker.prototype.constructor = HotmailChecker ;
 
 HotmailChecker.prototype.start = function(){
 	this.init() ;
-	this.pollIntervalMin = 1000 * 60 * 10; //10 minutes
+	this.pollIntervalMin = 1000 * 60 * 5; //5 minutes
 } ;
 
 HotmailChecker.prototype.tabsUpdated = function(tabId, changeInfo){
@@ -1295,3 +1295,180 @@ RMWChecker.prototype.checkUnreadNotifications = function(runner, xhr, handleSucc
 RMWChecker.prototype.getSiteInfo = function() {
 	return {"text" : "人民社区", "icon" : "/images/rmw_sns.ico", "loginUrl" : "http://sns.people.com.cn/"} ;
 } ;
+
+
+/****************************************tieba.baidu.com**************************************************/
+function BaiduTiebaChecker(){
+	this.appName = "baidu_tieba" ;
+}
+BaiduTiebaChecker.prototype = new TaskRunner() ;
+BaiduTiebaChecker.prototype.constructor = BaiduTiebaChecker ;
+
+BaiduTiebaChecker.prototype.start = function(){
+	this.init() ;
+	this.pollIntervalMin = 1000 * 5;  // 5 seconds
+	this.pollIntervalMax = 1000 * 60 * 2;  // 2 minutes
+	
+	this.portraitId = "1" ;
+	this.preparePortraitId(this) ;
+} ;
+
+BaiduTiebaChecker.prototype.tabsUpdated = function(tabId, changeInfo){
+	if (changeInfo.url && changeInfo.url.indexOf("http://tieba.baidu.com/i/") != -1) {
+		this.manualCheckNow() ;
+	}
+} ;
+
+BaiduTiebaChecker.prototype.goToInbox = function() {
+	var owner = this ;
+	
+	chrome.tabs.getAllInWindow(undefined, function(tabs) {
+	    for (var i = 0, tab; tab = tabs[i]; i++) {
+	      if (tab.url && tab.ur.indexOf("http://tieba.baidu.com/i/") != -1) {
+	        chrome.tabs.update(tab.id, {selected: true});
+	        return;
+	      }
+	    }
+	    
+	    chrome.tabs.create({url: "http://tieba.baidu.com/"});
+	});
+} ;
+
+BaiduTiebaChecker.prototype.updateUnreadCount = function(msgs) {
+	var data = [] ;
+	var count = 0 ;
+	
+	for(i=0; i<msgs.length; i++){
+		msgs[i] = parseInt(msgs[i]) ;
+	}
+	
+	if(msgs[0] > 0){
+		data.push({"unReadCount" : msgs[0],
+			"icon" : "",
+			"text" : msgs[0] + "位新粉丝",
+			"link" : "http://tieba.baidu.com/i/sys/jump?u=" + this.portraitId + "&type=fans"
+		}) ;
+		count += msgs[0] ;
+		msgs[0] = 0 ;
+	}
+	
+	if(msgs[3] > 0){
+		data.push({"unReadCount" : msgs[3],
+			"icon" : "",
+			"text" : msgs[3] + "个新回复",
+			"link" : "http://tieba.baidu.com/i/sys/jump?u=" + this.portraitId + "&type=replyme"
+		}) ;
+		count += msgs[3] ;
+		msgs[3] = 0 ;
+	}
+	
+	var otherCount = 0 ;
+	for(i=0; i<msgs.length; i++){
+		var m_msg = parseInt(msgs[i]) ;
+		
+		if(m_msg > 0){
+			otherCount += m_msg ;
+		}
+	}
+	
+	if(otherCount > 0){
+		data.push({"unReadCount" : otherCount,
+			"icon" : "",
+			"text" : otherCount + "个新提醒",
+			"link" : "http://tieba.baidu.com/"
+		}) ;
+		count += otherCount ;
+	}
+	
+	if (this.unreadCount != count) {
+		this.unreadCount = count;
+		globalNotifyUnreadMessage(this.appName, data);
+	}else{
+		delete data ;
+	}
+} ;
+
+BaiduTiebaChecker.prototype.checkUnreadNotifications = function(runner, xhr, handleSuccess, handleError){
+		console.debug(this.appName + " checkUnreadNotifications called") ;
+		
+		if(runner.portraitId = "1"){
+			this.preparePortraitId(runner) ;
+		}
+		
+		xhr.onreadystatechange = function() {
+			if (xhr.readyState != 4)
+				return;
+			if (xhr.responseText) {
+				var textDoc = xhr.responseText;
+				
+				if(textDoc){
+					try{
+						var startPos = textDoc.indexOf('[') ;
+						var endPos = textDoc.indexOf(']') ;
+						
+						var m_msg = textDoc.slice(startPos + 1, endPos) ;
+						var msgs = m_msg.split(",") ;
+						
+						if(msgs){
+							handleSuccess(runner, msgs);
+							return ;
+						}
+					}catch(e){
+						//format changed
+						handleError(runner, chrome.i18n.getMessage("needUpgrade"));
+						return ;
+					}
+				}
+			}
+	
+			handleError(runner);
+		};
+
+		xhr.onerror = function(error) {
+			handleError(runner);
+		};
+	
+		xhr.open("GET", "http://message.tieba.baidu.com/i/msg/get_data", true);
+		xhr.send(null);
+} ;
+
+BaiduTiebaChecker.prototype.preparePortraitId = function(runner){
+	var xhr = new XMLHttpRequest();
+	var abortTimerId = window.setTimeout(function() {
+	  xhr.abort();  // synchronously calls onreadystatechange
+	}, runner.requestTimeout);
+	
+	xhr.onreadystatechange = function() {
+		if (xhr.readyState != 4)
+			return;
+		if (xhr.responseText) {
+			var textDoc = xhr.responseText;
+			
+			if(textDoc){
+				try{
+					var json = JSON.parse(textDoc);
+					if(json){
+						runner.portraitId = json.data.user_portrait ;
+						console.debug(this.appName + " protrait id:" + runner.portraitId) ;
+						return ;
+					}
+				}catch(e){
+					//format changed
+					runner.portraitId = "1" ;
+					return ;
+				}
+			}
+		}
+		
+		runner.portraitId = "1" ;
+	};
+
+	xhr.open("GET", "http://tieba.baidu.com/f/user/json_userinfo?_=" + (new Date()).getTime(), true);
+	xhr.send(null);
+} ;
+
+BaiduTiebaChecker.prototype.getSiteInfo = function() {
+	return {"text" : "百度贴吧", "icon" : "/images/baidu.ico", "loginUrl" : "http://tieba.baidu.com/"} ;
+} ;
+
+

@@ -60,6 +60,8 @@ function startChoseCheckers(sites){
 				checker = new SohuMailChecker() ;
 			}else if(site == "rmw"){
 				checker = new RMWChecker() ;
+			}else if(site == "baidu_tieba"){
+				checker = new BaiduTiebaChecker() ;
 			}else{
 				//unknown site
 				console.error("register error. unknown new site:" + site) ;
