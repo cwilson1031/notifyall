@@ -606,8 +606,8 @@ SinaWeiboChecker.prototype.constructor = SinaWeiboChecker ;
 SinaWeiboChecker.prototype.start = function(){
 	this.init() ;
 	
-	this.pollIntervalMin = 1000 * 30; //30 seconds
-	this.requestTimeout = 1000 * 60;  // 60 seconds
+	this.pollIntervalMin = 1000 * 20; //30 seconds
+	this.requestTimeout = 1000 * 10;  // 10 seconds
 	
 	this.prepareSession(this, "http://weibo.com/", 0) ;
 } ;
@@ -710,6 +710,8 @@ SinaWeiboChecker.prototype.checkUnreadNotifications = function(runner, xhr, hand
 		}else if(runner.uid < 1){
 			xhr.abort() ;
 			handleError(runner);
+			
+			runner.prepareSession(runner, "http://weibo.com/", 0) ;
 			return ;
 		}
 
