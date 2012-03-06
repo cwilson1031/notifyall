@@ -597,22 +597,25 @@ YahooMailChecker.prototype.getSiteInfo = function() {
 /****************************************Sina Weibo**************************************************/
 function SinaWeiboChecker(){
 	this.appName = "weibo" ;	
-	this.pollIntervalMin = 1000 * 30; //30 seconds
 	this.count = 1 ;
 	this.uid = 0 ;
 }
 SinaWeiboChecker.prototype = new TaskRunner() ;
 SinaWeiboChecker.prototype.constructor = SinaWeiboChecker ;
 
-SinaWeiboChecker.prototype.start = function(){	
+SinaWeiboChecker.prototype.start = function(){
 	this.init() ;
-	this.prepareSession(this) ;
+	
+	this.pollIntervalMin = 1000 * 30; //30 seconds
+	this.requestTimeout = 1000 * 60;  // 60 seconds
+	
+	this.prepareSession(this, "http://weibo.com/", 0) ;
 } ;
 
 SinaWeiboChecker.prototype.updateUid = function(){
 	var runner = this ;
 	//read uid from cookie
-	chrome.cookies.get({"url" : "http://login.sina.com.cn/", "name" : "SUP"}, function(cookie){
+	chrome.cookies.get({"url" : "http://weibo.com/", "name" : "SUP"}, function(cookie){
 		if(cookie == null){
 			runner.uid = 0 ;
 		}else{
@@ -751,8 +754,10 @@ SinaWeiboChecker.prototype.checkUnreadNotifications = function(runner, xhr, hand
 		xhr.send(null);
 } ;
 
-SinaWeiboChecker.prototype.prepareSession = function(runner){
-	console.debug(runner.appName + " prepare session cookies.") ;
+SinaWeiboChecker.prototype.prepareSession = function(runner, urlToLoad, deadLoopCount){
+	console.debug(runner.appName + " prepare session cookies for url:" + urlToLoad) ;
+	
+	if(deadLoopCount > 10) return ;
 	
 	var xhr = new XMLHttpRequest();
 	var weiboTimerId = window.setTimeout(function() {
@@ -762,13 +767,22 @@ SinaWeiboChecker.prototype.prepareSession = function(runner){
 	xhr.onreadystatechange = function() {
 		if (xhr.readyState != 4)
 			return;
-		if (xhr.responseText) {
-			window.clearTimeout(weiboTimerId);
-			runner.updateUid() ;
+		if (xhr.responseText) {			
+			var retVal = xhr.responseText ;
+			var startPos = retVal.indexOf("location.replace(\"") ;
+			if(startPos > 0){
+				//relocation
+				startPos = startPos + "location.replace(\"".length ;
+				retVal = retVal.substring(startPos, retVal.indexOf("\"", startPos)) ;
+				
+				runner.prepareSession(runner, retVal, ++deadLoopCount) ;
+			}else{
+				runner.updateUid() ;
+			}
 		}
 	};
 
-	xhr.open("GET", "http://weibo.com/", true);
+	xhr.open("GET", urlToLoad, true);
 	xhr.send(null);
 } ;
 
@@ -779,7 +793,6 @@ SinaWeiboChecker.prototype.getSiteInfo = function() {
 /****************************************Baidu Space**************************************************/
 function BaiduChecker(){
 	this.appName = "baidu" ;	
-	this.pollIntervalMin = 1000 * 30; //30 seconds
 	this.count = 1 ;
 }
 
@@ -788,6 +801,7 @@ BaiduChecker.prototype.constructor = BaiduChecker ;
 
 BaiduChecker.prototype.start = function(){	
 	this.init() ;
+	this.pollIntervalMin = 1000 * 30; //30 seconds
 } ;
 
 BaiduChecker.prototype.tabsUpdated = function(tabId, changeInfo){
@@ -889,7 +903,6 @@ BaiduChecker.prototype.getSiteInfo = function() {
 /****************************************163.com Mail**************************************************/
 function Mail163Checker(){
 	this.appName = "163m" ;	
-	this.pollIntervalMin = 1000 * 60 * 1; //60 seconds
 	this.count = 1 ;
 	this.sid = "" ;
 }
@@ -898,6 +911,7 @@ Mail163Checker.prototype.constructor = Mail163Checker ;
 
 Mail163Checker.prototype.start = function(){	
 	this.init() ;
+	this.pollIntervalMin = 1000 * 60 * 1; //60 seconds
 	this.prepareSession(this) ;
 } ;
 
@@ -1361,6 +1375,16 @@ BaiduTiebaChecker.prototype.updateUnreadCount = function(msgs) {
 		msgs[3] = 0 ;
 	}
 	
+	if(msgs[8] > 0){
+		data.push({"unReadCount" : msgs[8],
+			"icon" : "",
+			"text" : msgs[8] + "个@提到我",
+			"link" : "http://tieba.baidu.com/i/sys/jump?u=" + this.portraitId + "&type=atme"
+		}) ;
+		count += msgs[8] ;
+		msgs[8] = 0 ;
+	}
+	
 	var otherCount = 0 ;
 	for(i=0; i<msgs.length; i++){
 		var m_msg = parseInt(msgs[i]) ;
@@ -1448,7 +1472,7 @@ BaiduTiebaChecker.prototype.preparePortraitId = function(runner){
 					var json = JSON.parse(textDoc);
 					if(json){
 						runner.portraitId = json.data.user_portrait ;
-						console.debug(this.appName + " protrait id:" + runner.portraitId) ;
+						console.debug(runner.appName + " protrait id:" + runner.portraitId) ;
 						return ;
 					}
 				}catch(e){
