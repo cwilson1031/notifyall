@@ -62,6 +62,8 @@ function startChoseCheckers(sites){
 				checker = new RMWChecker() ;
 			}else if(site == "baidu_tieba"){
 				checker = new BaiduTiebaChecker() ;
+			}else if(site == "renren"){
+				checker = new RenRenChecker() ;
 			}else{
 				//unknown site
 				console.error("register error. unknown new site:" + site) ;
@@ -209,10 +211,9 @@ function repaintTips(){
 	  	chrome.browserAction.setBadgeBackgroundColor({color:[190, 190, 190, 230]});
 	  	chrome.browserAction.setBadgeText({text:"?"});
 	}else if(connectedSites.length > 0){
+    	loadingAnimation.stop();
 		//some sites are connected.
-		if(newUnReadCount != unreadCount || m_failStatusChanged || no_conn_icon_on){
-    		loadingAnimation.stop();
-    	
+		if(newUnReadCount != unreadCount || m_failStatusChanged || no_conn_icon_on){    	
 			no_conn_icon_on = false ;
 			unreadCount = newUnReadCount ;
 			animateFlip(unreadCount, m_hasFailedSite);

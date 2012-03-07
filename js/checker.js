@@ -868,7 +868,7 @@ BaiduChecker.prototype.checkUnreadNotifications = function(runner, xhr, handleSu
 				var textDoc = xhr.responseText;
 				textDoc = textDoc.substr(2, textDoc.length - 4) ;
 				textDoc = textDoc.replace(/'/g, "\"") ;
-				try{					
+				try{	
 					var json = JSON.parse(textDoc);
 					if(json){
 						//Baidu没有错误信息，即使未登录，也返回正确的json格式，只是所有消息数为0
@@ -1496,4 +1496,127 @@ BaiduTiebaChecker.prototype.getSiteInfo = function() {
 	return {"text" : "百度贴吧", "icon" : "/images/baidu.ico", "loginUrl" : "http://tieba.baidu.com/"} ;
 } ;
 
+
+/****************************************RenRen.com**************************************************/
+function RenRenChecker(){
+	this.appName = "renren" ;
+}
+RenRenChecker.prototype = new TaskRunner() ;
+RenRenChecker.prototype.constructor = RenRenChecker ;
+
+RenRenChecker.prototype.start = function(){
+	this.init() ;
+	
+	this.pollIntervalMin = 1000 * 20; //20 seconds
+	this.requestTimeout = 1000 * 10;  // 10 seconds
+	
+	this.prepareSession(this, "http://www.renren.com", 0) ;
+} ;
+
+RenRenChecker.prototype.tabsUpdated = function(tabId, changeInfo){
+	if (changeInfo.url && changeInfo.url.indexOf("http://www.renren.com") != -1) {
+		this.manualCheckNow() ;
+	}
+} ;
+
+RenRenChecker.prototype.goToInbox = function() {
+	var owner = this ;
+	var inboxUrl = "http://www.renren.com" ;
+	
+	chrome.tabs.getAllInWindow(undefined, function(tabs) {
+	    for (var i = 0, tab; tab = tabs[i]; i++) {
+	      if (tab.url && tab.ur.indexOf(inboxUrl) != -1) {
+	        chrome.tabs.update(tab.id, {selected: true});
+	        return;
+	      }
+	    }
+	    
+	    chrome.tabs.create({url: inboxUrl});
+	});
+} ;
+
+RenRenChecker.prototype.updateUnreadCount = function(json) {
+	var tips = [] ;
+	var count = json.length ;
+
+	if(json.length > 0){
+		tips.push({"unReadCount" : json.length, "text" : json.length + "个新提醒", "link" : "http://req.renren.com/xmc/gmc#"}) ;
+		count+= json.follower ;
+	}
+
+	if(this.unreadCount != count){
+		this.unreadCount = count ;
+		globalNotifyUnreadMessage(this.appName, tips);
+	}
+
+} ;
+
+RenRenChecker.prototype.checkUnreadNotifications = function(runner, xhr, handleSuccess, handleError){
+		console.debug(this.appName + " checkUnreadNotifications called") ;
+		
+		xhr.onreadystatechange = function() {
+			if (xhr.readyState == 1){
+				//set headers
+				return;
+			}
+			if (xhr.readyState != 4)
+				return;
+			if (xhr.responseText) {
+				var textDoc = xhr.responseText;
+				
+				if(textDoc.indexOf("verify failure") != -1){
+					handleError(runner);
+					return ;
+				}
+				
+				try{
+					var json = JSON.parse(textDoc);
+					if(json){
+						handleSuccess(runner, json);
+						
+						return ;
+					}
+				}catch(e){
+					//format changed
+					handleError(runner, chrome.i18n.getMessage("needUpgrade"));
+					return ;
+				}
+			}
+	
+			handleError(runner);
+		};
+
+		xhr.onerror = function(error) {
+			handleError(runner);
+		};
+	
+		xhr.open("GET", "http://notify.renren.com/get.notify?view=1&nid=0&limit=10&rand=" + (new Date()).getTime()*4, true);
+		xhr.send(null);
+} ;
+
+RenRenChecker.prototype.prepareSession = function(runner, urlToLoad, deadLoopCount){
+	console.debug(runner.appName + " prepare session cookies for url:" + urlToLoad) ;
+	
+	if(deadLoopCount > 10) return ;
+	
+	var xhr = new XMLHttpRequest();
+	var weiboTimerId = window.setTimeout(function() {
+	  xhr.abort();  // synchronously calls onreadystatechange
+	}, runner.requestTimeout * 2);
+	
+	xhr.onreadystatechange = function() {
+		if (xhr.readyState != 4)
+			return;
+		if (xhr.responseText) {
+			
+		}
+	};
+
+	xhr.open("GET", urlToLoad, true);
+	xhr.send(null);
+} ;
+
+RenRenChecker.prototype.getSiteInfo = function() {
+	return {"text" : "人人网", "icon" : "/images/renren.ico", "loginUrl" : "http://www.renren.com/"} ;
+} ;
 
