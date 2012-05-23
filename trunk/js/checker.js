@@ -1514,14 +1514,14 @@ RenRenChecker.prototype.start = function(){
 } ;
 
 RenRenChecker.prototype.tabsUpdated = function(tabId, changeInfo){
-	if (changeInfo.url && changeInfo.url.indexOf("http://www.renren.com") != -1) {
+	if (changeInfo.url && changeInfo.url.indexOf("renren.com") != -1) {
 		this.manualCheckNow() ;
 	}
 } ;
 
 RenRenChecker.prototype.goToInbox = function() {
 	var owner = this ;
-	var inboxUrl = "http://www.renren.com" ;
+	var inboxUrl = "renren.com" ;
 	
 	chrome.tabs.getAllInWindow(undefined, function(tabs) {
 	    for (var i = 0, tab; tab = tabs[i]; i++) {
