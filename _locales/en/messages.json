@@ -1,11 +1,11 @@
 {
   "appName": {
-    "message": "Hotmail Notifier",
+    "message": "Super Notifier",
     "description": "APP Name"
   },
 
   "appDescription": {
-    "message": "Notifier for Facebook, Gmail, Hotmail, Yahoo, AOL... No passwords are required to this extension, for safety.",
+    "message": "Notifier for Facebook, Gmail, Hotmail, Outlook, Yahoo, AOL... No passwords are required to this extension, for safety.",
     "description": "APP Introduction"
   },
 

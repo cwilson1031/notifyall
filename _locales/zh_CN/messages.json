@@ -1,11 +1,11 @@
 {
   "appName": {
-    "message": "新浪微博提醒",
+    "message": "超级提醒",
     "description": "应用名称"
   },
 
   "appDescription": {
-    "message": "新邮件提醒：Gmail,Facebook,Hotmail,Yahoo,AOL,网易邮箱,Sohu邮箱,新浪微博,百度,百度贴吧，人人网。此工具不需要您输入任何网站的密码，安全可靠。",
+    "message": "新邮件提醒：Gmail,Facebook,Hotmail,Outlook,Yahoo,AOL,网易邮箱,Sohu邮箱,新浪微博,百度,百度贴吧，人人网。此工具不需要您输入任何网站的密码，安全可靠。",
     "description": "应用介绍"
   },
 
