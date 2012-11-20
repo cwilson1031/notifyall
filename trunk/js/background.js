@@ -210,7 +210,17 @@ function repaintTips(){
 	  	chrome.browserAction.setBadgeBackgroundColor({color:[190, 190, 190, 230]});
 	  	chrome.browserAction.setBadgeText({text:"?"});
 	}else if(connectedSites.length > 0){
-		var mesageInc = newUnReadCount > unreadCount ;
+		var m_value = localStorage["fSoundsOpitions"] ;
+		
+		if(m_value == "nosound"){
+			//do nothing
+		}else if(newUnReadCount > unreadCount){
+			if(m_value == "always"){
+				playSound() ;
+			}else if(unreadCount == 0){ //once
+				playSound() ;
+			}
+		}
 		
     	loadingAnimation.stop();
 		//some sites are connected.
@@ -220,8 +230,6 @@ function repaintTips(){
 			unreadCount = newUnReadCount ;
 			animateFlip(unreadCount, m_hasFailedSite);
 		}
-		
-		playSound() ;
 	}
 	
 	chrome.browserAction.setTitle({title : chrome.i18n.getMessage("connectedSites") + connectedSites.join(", ")}) ;
