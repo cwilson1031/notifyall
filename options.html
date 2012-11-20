@@ -1,5 +1,6 @@
 <html><head>
 <meta charset="utf-8" />
+<title>Options</title>
 <style>
 	body a {
 		color: #444;font:14px/1.125 Arial,Helvetica,sans-serif;
@@ -77,54 +78,25 @@
 	}
     
 </style>
+
 <script src="js/jquery-1.4.2.min.js"></script>
-<script>
+<script src="js/options.js"></script>
 
-	function init(){
-		var background = chrome.extension.getBackgroundPage();
-		var sites = background.getSavedSites() ;
-
-		if(sites){
-			sites.forEach(
-				function(site){
-					$("#" + site).attr("checked", true) ;
-				}
-			) ;
-		}
-
-		$("[i18ntext]").each(
-			function (index, item){
-				var jItem = $(item) ;
-				var m_value = chrome.i18n.getMessage(jItem.attr("i18ntext")) ;
-				
-				jItem.val(m_value) ;
-				jItem.text(m_value) ;
-			}
-		) ;
-	}
-
-	function saveOptions(){
-		var selectedOptions = [] ;
-		$("input[name=providers]").each(
-			function (index, item){
-				if(item.checked){
-					selectedOptions.push(item.id) ;
-				}
-			}
-		) ;
-
-		var background = chrome.extension.getBackgroundPage();
-		background.storeSavedSites(selectedOptions) ;
-
-		$("#tipForSaveOK").fadeIn("slow").fadeOut(10000) ;
-	}
-
-</script>
 </head>
-<body onload="init()">
+<body>
 
 <div class="top"><span i18ntext="options">选项</span><span><a href="http://code.google.com/p/notifyall/wiki/HomePage?tm=6" target="_blank" i18ntext="helpAndFeedback">（使用帮助与意见反馈）</a></span></div>
 
+<div class="lang" i18ntext="op_title">声音提醒:</div>
+<div class="providers">
+	<ul>
+		<li>
+			<input type="radio" name="op_sounds" value="nosound" id="op_nosound" /><label i18ntext="op_nosound" for="op_nosound">不要开声音</label>
+			&nbsp;&nbsp;<input type="radio" name="op_sounds" value="once" value="op_once" /><label i18ntext="op_once" for="op_once">仅第一次有新消息时</label>
+			&nbsp;&nbsp;<input type="radio" name="op_sounds" value="always" value="op_always" /><label i18ntext="op_always" for="op_always">所有新消息</label>
+		</li>
+	</ul>
+</div>
 
 <div class="lang">English:</div>
 <div class="providers">
@@ -132,6 +104,7 @@
 		<li><input type="checkbox" name="providers" id="gmail" /><label for="gmail">&nbsp;<img src="images/mail.ico"/>&nbsp;Gmail</label></li>
 		<li><input type="checkbox" name="providers" id="facebook" /><label for="facebook">&nbsp;<img src="images/facebook.ico"/>&nbsp;Facebook</label></li>
 		<li><input type="checkbox" name="providers" id="hotmail" /><label for="hotmail">&nbsp;<img src="images/hotmail.ico"/>&nbsp;Hotmail</label></li>
+		<li><input type="checkbox" name="providers" id="outlook" /><label for="outlook">&nbsp;<img src="images/outlook.ico"/>&nbsp;Outlook.com</label></li>
 		<li><input type="checkbox" name="providers" id="yahoom" /><label for="yahoom">&nbsp;<img src="images/yahoo.ico"/>&nbsp;Yahoo Mail</label></li>
 		<li><input type="checkbox" name="providers" id="aolm" /><label for="aolm">&nbsp;<img src="images/aol.ico"/>&nbsp;AOL Mail</label></li>
 	</ul>
@@ -151,7 +124,7 @@
 </div>
 
 <div class="button">
-	<input type="button" i18ntext="saveOptions" value="保存设置" onClick="saveOptions();" id="saveConfig" />
+	<input type="button" i18ntext="saveOptions" value="保存设置" id="saveConfig" />
 	&nbsp;<span id="tipForSaveOK" style="display:none;" i18ntext="saveOptionsDoneTip">保存成功</span>
 </div>
 

@@ -381,15 +381,12 @@ HotmailChecker.prototype.checkUnreadNotifications = function(runner, xhr, handle
 						endPos = textDoc.indexOf("</span>", pos) ;
 						var len = endPos - pos ;
 						
-						var count = textDoc.substr(pos, len) ;
+						var count = parseInt(textDoc.substr(pos, len)) ;
+						if(!count) count = 0 ;
 						
 						console.debug("found " + count + " new mails for hotmail.") ;
 						
-						if(count){
-							handleSuccess(runner, parseInt(count));
-						}else{
-							handleSuccess(runner, 0);
-						}
+						handleSuccess(runner, count);
 
 						return ;
 					}
@@ -417,6 +414,146 @@ HotmailChecker.prototype.checkUnreadNotifications = function(runner, xhr, handle
 
 HotmailChecker.prototype.getSiteInfo = function() {
 	return {"text" : "Hotmail", "icon" : "/images/hotmail.ico", "loginUrl" : "http://www.hotmail.com/"} ;
+} ;
+
+/****************************************Outlook**************************************************/
+function OutlookChecker(){
+	this.appName = "outlook" ;
+}
+OutlookChecker.prototype = new TaskRunner() ;
+OutlookChecker.prototype.constructor = OutlookChecker ;
+
+OutlookChecker.prototype.start = function(){
+	this.init() ;
+	this.pollIntervalMin = 1000 * 60 * 3; //3 minutes
+} ;
+
+OutlookChecker.prototype.tabsUpdated = function(tabId, changeInfo){
+	if (changeInfo.url && changeInfo.url.indexOf("mail.live.com/") != -1) {
+		this.manualCheckNow() ;
+	}
+} ;
+
+OutlookChecker.prototype.goToInbox = function() {
+	var owner = this ;
+	var inboxUrl = "mail.live.com/" ;
+	
+	chrome.tabs.getAllInWindow(undefined, function(tabs) {
+	    for (var i = 0, tab; tab = tabs[i]; i++) {
+	      if (tab.url && tab.ur.indexOf(inboxUrl) != -1) {
+	        chrome.tabs.update(tab.id, {selected: true});
+	        return;
+	      }
+	    }
+	    
+	    chrome.tabs.create({url: "http://www.outlook.com/"});
+	});
+} ;
+
+OutlookChecker.prototype.updateUnreadCount = function(count) {
+	count = parseInt(count) ;
+	
+	if (this.unreadCount != count) {
+		this.unreadCount = count;
+		
+		var data = [{"unReadCount" : count,
+					"icon" : "",
+					"text" : count + chrome.i18n.getMessage("newMails"),
+					"link" : "http://www.outlook.com/"
+		}] ;
+		
+		globalNotifyUnreadMessage(this.appName, data);
+	}
+} ;
+
+OutlookChecker.prototype.onXhrReadystatechange = function(runner, xhr, handleSuccess, handleError){
+	if (xhr.readyState != 4)
+		return;
+	if (xhr.responseText) {
+		//
+		var textDoc = xhr.responseText;
+		
+		var re_startPos = textDoc.indexOf("location.replace(\"") ;
+		if(textDoc.length < 400 && re_startPos > 0){
+			//relocation
+			re_startPos = re_startPos + "location.replace(\"".length ;
+			var redirectUrl = textDoc.substring(re_startPos, textDoc.indexOf("\"", re_startPos)) ;
+			
+			var newXHr = new XMLHttpRequest();
+			var weiboTimerId = window.setTimeout(function() {
+				newXHr.abort();  // synchronously calls onreadystatechange
+			}, runner.requestTimeout * 2);
+			
+			newXHr.onreadystatechange = function(){
+				runner.onXhrReadystatechange(runner, newXHr, handleSuccess, handleError) ;
+			} ;
+
+			newXHr.open("GET", redirectUrl, true);
+			newXHr.send(null);
+			
+			return ;
+		}
+			
+		try{
+			var j_start = textDoc.indexOf("<ul id=\"folderListControlUl\"") ;
+			
+			if(j_start == -1){
+				handleError(runner);
+				return ;
+			}
+			
+			var j_end = textDoc.indexOf("<div id=AddFldrInput>", j_start) ;
+			var j_dom = $(textDoc.substring(j_start, j_end)) ;
+			
+			var count = 0 ;
+			$.each($("li.lnav_item", j_dom), function(liIndex, liElement){
+				var m_li = $(liElement) ;
+				var m_id = m_li.attr("id") ;
+				
+				//Inbox or user-defined box
+				if(m_id == "00000000-0000-0000-0000-000000000001" || m_id.indexOf("00000000-0000-0000") == -1){
+					var m_msg_in_box = parseInt(m_li.attr("count")) ;
+					if(m_msg_in_box){//skip NAN
+						count = count + m_msg_in_box ;
+					}
+				}
+			}) ;
+				
+			console.debug("found " + count + " new mails for outlook.") ;
+				
+			handleSuccess(runner, count);
+
+			return ;
+		}catch(e){
+			//format changed
+			handleError(runner, chrome.i18n.getMessage("needUpgrade"));
+			return ;
+		}
+	}else{
+		//Hotmail is not stable. Sometimes you are logged in but it returns ""; sometimes it returns the right content.
+		//Ingore this time.
+		return ;
+	}
+
+	handleError(runner);
+};
+
+OutlookChecker.prototype.checkUnreadNotifications = function(runner, xhr, handleSuccess, handleError){
+		console.debug(this.appName + " checkUnreadNotifications called") ;
+		xhr.onreadystatechange = function(){
+			runner.onXhrReadystatechange(runner, xhr, handleSuccess, handleError) ;
+		} ; 
+
+		xhr.onerror = function(error) {
+			handleError(runner);
+		};
+	
+		xhr.open("GET", "http://www.outlook.com/", true);
+		xhr.send(null);
+} ;
+
+OutlookChecker.prototype.getSiteInfo = function() {
+	return {"text" : "Outlook", "icon" : "/images/outlook.ico", "loginUrl" : "http://www.outlook.com/"} ;
 } ;
 
 /****************************************Yahoo Mail**************************************************/
@@ -1319,13 +1456,18 @@ function BaiduTiebaChecker(){
 BaiduTiebaChecker.prototype = new TaskRunner() ;
 BaiduTiebaChecker.prototype.constructor = BaiduTiebaChecker ;
 
+var tieba_preparePortraitId = "1" ;
+
 BaiduTiebaChecker.prototype.start = function(){
-	this.init() ;
-	this.pollIntervalMin = 1000 * 5;  // 5 seconds
-	this.pollIntervalMax = 1000 * 60 * 2;  // 2 minutes
-	
-	this.portraitId = "1" ;
+	var runner = this ;
+
 	this.preparePortraitId(this) ;
+	
+	setTimeout(function(){
+		runner.init() ;
+		runner.pollIntervalMin = 1000 * 5;  // 5 seconds
+		runner.pollIntervalMax = 1000 * 60 * 2;  // 2 minutes
+	}, 1000) ;
 } ;
 
 BaiduTiebaChecker.prototype.tabsUpdated = function(tabId, changeInfo){
@@ -1361,7 +1503,7 @@ BaiduTiebaChecker.prototype.updateUnreadCount = function(msgs) {
 		data.push({"unReadCount" : msgs[0],
 			"icon" : "",
 			"text" : msgs[0] + "位新粉丝",
-			"link" : "http://tieba.baidu.com/i/sys/jump?u=" + this.portraitId + "&type=fans"
+			"link" : "http://tieba.baidu.com/i/sys/jump?u=" + tieba_preparePortraitId + "&type=fans"
 		}) ;
 		count += msgs[0] ;
 		msgs[0] = 0 ;
@@ -1371,7 +1513,7 @@ BaiduTiebaChecker.prototype.updateUnreadCount = function(msgs) {
 		data.push({"unReadCount" : msgs[3],
 			"icon" : "",
 			"text" : msgs[3] + "个新回复",
-			"link" : "http://tieba.baidu.com/i/sys/jump?u=" + this.portraitId + "&type=replyme"
+			"link" : "http://tieba.baidu.com/i/sys/jump?u=" + tieba_preparePortraitId + "&type=replyme"
 		}) ;
 		count += msgs[3] ;
 		msgs[3] = 0 ;
@@ -1381,7 +1523,7 @@ BaiduTiebaChecker.prototype.updateUnreadCount = function(msgs) {
 		data.push({"unReadCount" : msgs[8],
 			"icon" : "",
 			"text" : msgs[8] + "个@提到我",
-			"link" : "http://tieba.baidu.com/i/sys/jump?u=" + this.portraitId + "&type=atme"
+			"link" : "http://tieba.baidu.com/i/sys/jump?u=" + tieba_preparePortraitId + "&type=atme"
 		}) ;
 		count += msgs[8] ;
 		msgs[8] = 0 ;
@@ -1416,8 +1558,8 @@ BaiduTiebaChecker.prototype.updateUnreadCount = function(msgs) {
 BaiduTiebaChecker.prototype.checkUnreadNotifications = function(runner, xhr, handleSuccess, handleError){
 		console.debug(this.appName + " checkUnreadNotifications called") ;
 		
-		if(runner.portraitId = "1"){
-			this.preparePortraitId(runner) ;
+		if(tieba_preparePortraitId == "1"){
+			runner.preparePortraitId(runner) ;
 		}
 		
 		xhr.onreadystatechange = function() {
@@ -1473,19 +1615,17 @@ BaiduTiebaChecker.prototype.preparePortraitId = function(runner){
 				try{
 					var json = JSON.parse(textDoc);
 					if(json){
-						runner.portraitId = json.data.user_portrait ;
-						console.debug(runner.appName + " protrait id:" + runner.portraitId) ;
+						tieba_preparePortraitId = json.data.user_portrait ;
+						console.debug(runner.appName + " protrait id:" + tieba_preparePortraitId) ;
 						return ;
 					}
 				}catch(e){
 					//format changed
-					runner.portraitId = "1" ;
+					tieba_preparePortraitId = "1" ;
 					return ;
 				}
 			}
 		}
-		
-		runner.portraitId = "1" ;
 	};
 
 	xhr.open("GET", "http://tieba.baidu.com/f/user/json_userinfo?_=" + (new Date()).getTime(), true);

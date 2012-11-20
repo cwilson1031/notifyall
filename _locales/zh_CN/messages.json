@@ -82,6 +82,26 @@
   "connectedSites": {
     "message": "已连接网站：",
     "description": "Sites that have been connected to."
+  },
+
+  "op_title": {
+    "message": "声音提醒:",
+    "description": ""
+  },
+
+  "op_once": {
+    "message": "仅第一次有新消息时",
+    "description": ""
+  },
+
+  "op_nosound": {
+    "message": "不要开声音",
+    "description": ""
+  },
+
+  "op_always": {
+    "message": "所有新消息",
+    "description": ""
   }
 
 }

@@ -82,6 +82,26 @@
   "connectedSites": {
     "message": "接続されているサイト: ",
     "description": "Sites that have been connected to."
+  },
+
+  "op_title": {
+    "message": "Sound Alert:",
+    "description": ""
+  },
+
+  "op_once": {
+    "message": "From no message to some new messages",
+    "description": ""
+  },
+
+  "op_nosound": {
+    "message": "No Sound",
+    "description": ""
+  },
+
+  "op_always": {
+    "message": "Always",
+    "description": ""
   }
 
 }
